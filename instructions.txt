@@ -1,0 +1,138 @@
+================================================================================
+PROJECT:    "THE IRON LEDGER"
+THEME:      Guild Quartermaster System
+DEVELOPER:  Toutl (Ubaldo Neri)
+================================================================================
+
+I. THE OBJECTIVE
+----------------
+You are building the backend core for an RPG Guild Hall. You are the "Quartermaster." 
+Your software tracks the Guild's roster (Heroes), their stored wealth (Gold), 
+and the equipment they have borrowed from the Guild Armory (Loans).
+
+Why this project?
+Games are databases with graphics. This project isolates the database layer. 
+You must ensure that no gold is created out of thin air and that every sword 
+lent out is tracked.
+
+
+II. TECHNICAL CONSTRAINTS (NON-NEGOTIABLE)
+------------------------------------------
+1. MEMORY MANAGEMENT:
+   - Use #define MAX_HEROES 100
+   - Use #define MAX_LOGS 500
+
+2. NO GLOBAL STATE:
+   - Global variables for data are forbidden.
+   - You must pass Arrays of Structures into functions using pointers.
+
+3. DATA INTEGRITY:
+   - A Hero cannot have negative Gold.
+   - A Hero cannot have negative Debt.
+   - Your code must prevent this at the input layer.
+
+4. LIBRARIES PERMITTED:
+   - stdio.h
+   - string.h
+   - stdlib.h (for system cls/clear)
+   - time.h (for timestamp logging)
+
+
+III. DATA STRUCTURES
+--------------------
+You must define and use the following relational structures.
+
+1. THE GUILD OFFICER (System User)
+   - id (int)
+   - username (string, unique)
+   - password (string)
+   - rank (enum: GUILD_MASTER, SCRIBE)
+
+2. THE HERO (The "Member")
+   - id (int, auto-generated)
+   - callsign (string, e.g., "Aragorn")
+   - class_type (string, e.g., "Paladin")
+   - gold_pouch (double) 
+     (This is their Savings. Money stored in the guild.)
+   - equipment_debt (double) 
+     (Value of Guild gear they are currently borrowing.)
+   - inventory_count (int)
+     (Number of active items borrowed.)
+
+3. THE QUEST LOG (Transaction History)
+   - id (int)
+   - timestamp (string)
+   - action_type (enum: DEPOSIT, WITHDRAWAL, GEAR_RENTAL, GEAR_RETURN)
+   - amount (double)
+   - hero_id (int)
+
+
+IV. FUNCTIONAL REQUIREMENTS
+---------------------------
+
+A. AUTHENTICATION (The Gate)
+   - Hardcoded Master Account: User "admin", Pass "d20critical".
+   - Security: If a user fails the password 3 times, the program terminates.
+   - Registration: The Guild Master can register new Scribes.
+   - Scribe Password Rule: Auto-generated using:
+     [First 2 letters of username] + [string length of username] + "!"
+
+B. THE SCRIBE MENU (Operational Logic)
+
+   1. HERO RECRUITMENT (Onboarding)
+      - Register a new Hero (ID, Name, Class).
+      - MANDATORY: A new Hero must deposit an initial 200 Gold Pieces to join.
+
+   2. THE VAULT (Savings Operations)
+      - Loot Drop (Deposit): Hero deposits Gold. Add to gold_pouch. Log it.
+      - Stipend (Withdrawal): Hero takes Gold out.
+      - CONSTRAINT 1: Cannot withdraw if the remaining balance is less than 
+        their current equipment_debt (Collateral check).
+      - CONSTRAINT 2: Max withdrawal is 80% of total gold 
+        (The Guild always keeps a reserve).
+
+   3. THE ARMORY (The "Loan" Logic)
+      - Requisition Gear (Grant Loan):
+        * Hero requests gear worth X Gold.
+        * CONSTRAINT: Hero can only rent gear if their current equipment_debt is 0.
+        * CONSTRAINT: The value of the gear (+ interest) cannot exceed the 
+          Hero's stored gold_pouch.
+        * INTEREST: Add 10% to the debt immediately.
+        * TERMS: Calculate/Display monthly payment for 6 or 12-month terms.
+
+      - Return Gear/Pay Off (Loan Payment):
+        * Hero pays Gold to reduce equipment_debt.
+        * Once equipment_debt hits 0, the Hero is free to rent new gear.
+
+C. THE GUILD MASTER MENU (Reporting)
+   - Roster Audit: Show all Heroes.
+   - Wealth Report: Total Gold in the Guild (Sum of all pouches).
+   - Debtor List: Show only Heroes who currently owe money/gear.
+
+
+V. USER INTERFACE
+-----------------
+- Clear screen between menus.
+- Use legible formatting (columns, alignment).
+- Example: 
+  [#01] Conan (Barbarian) | Gold: 500.00 | Debt: 0.00
+
+
+VI. GRADING RUBRIC
+------------------
+1. ARCHITECTURE (40%): 
+   Correct use of Array of Structs. Clean separation of functions.
+
+2. LOGIC CONSTRAINTS (30%): 
+   Enforcement of collateral rules (Debt cannot exceed Savings). 
+   Enforcement of withdrawal limits.
+
+3. STABILITY (20%): 
+   Input sanitization. The program must not crash on bad input.
+
+4. REPORTING (10%): 
+   Clarity of data presentation.
+
+================================================================================
+END OF SPECIFICATION
+================================================================================
